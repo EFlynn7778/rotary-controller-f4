@@ -83,7 +83,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  SCB->VTOR = FLASH_BASE | 0x4000; // Added for HID bootloader offset
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
