@@ -52,12 +52,33 @@ rampsHandler_t RampsData;
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
-
+void BlinkLed4Times(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void BlinkLed4Times(void)
+{
+    // Define timing - adjust as needed
+    const uint32_t onTime = 250;  // LED on time in ms
+    const uint32_t offTime = 250; // LED off time in ms
 
+    for(int i = 0; i < 4; i++)
+    {
+        // Turn LED ON (Set pin to LOW since it's active-low)
+        HAL_GPIO_WritePin(USR_LED_GPIO_Port, USR_LED_Pin, GPIO_PIN_RESET);
+        HAL_Delay(onTime);
+
+        // Turn LED OFF (Set pin to HIGH)
+        HAL_GPIO_WritePin(USR_LED_GPIO_Port, USR_LED_Pin, GPIO_PIN_SET);
+
+        // Don't delay after the last blink
+        if(i < 3)
+        {
+            HAL_Delay(offTime);
+        }
+    }
+}
 /* USER CODE END 0 */
 
 /**
@@ -66,6 +87,7 @@ void MX_FREERTOS_Init(void);
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -83,7 +105,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  SCB->VTOR = FLASH_BASE | 0x4000; // Added for HID bootloader offset
+
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -95,6 +117,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM9_Init();
   /* USER CODE BEGIN 2 */
+  BlinkLed4Times();
   // htim1 is used in encoder mode
   // htim2 is used in encoder mode
   // htim3 is used in encoder mode
@@ -114,13 +137,14 @@ int main(void)
   /* Init scheduler */
   osKernelInitialize();
 
-  /* Call init function for freertos objects (in freertos.c) */
+  /* Call init function for freertos objects (in cmsis_os2.c) */
   MX_FREERTOS_Init();
 
   /* Start scheduler */
   osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -153,8 +177,8 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 100;
+  RCC_OscInitStruct.PLL.PLLM = 25;
+  RCC_OscInitStruct.PLL.PLLN = 200;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -194,7 +218,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE BEGIN Callback 0 */
 
   /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM11) {
+  if (htim->Instance == TIM11)
+  {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
